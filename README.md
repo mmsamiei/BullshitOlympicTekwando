@@ -1,4 +1,2 @@
 # JavaExamples
 # BullshitOlympicTekwando
-# BullshitOlympicTekwando
-# BullshitOlympicTekwando
