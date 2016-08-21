@@ -11,6 +11,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Vector;
+import javax.swing.JTable;
+import javax.swing.JProgressBar;
 
 public class MainFrame extends JFrame implements ActionListener {
 
@@ -55,17 +57,20 @@ public class MainFrame extends JFrame implements ActionListener {
 		contentPane.add(btnAddPlayer);
 
 		btnRunTournament = new JButton("run tournament");
-		btnRunTournament.setBounds(12, 65, 143, 25);
+		btnRunTournament.setBounds(12, 40, 143, 25);
 		btnRunTournament.addActionListener(this);
 		contentPane.add(btnRunTournament);
 		
-		JButton btnGoldMedal = new JButton("gold Medal");
-		btnGoldMedal.addActionListener(new ActionListener() {
+		JButton btnResultOfMedals = new JButton("ResultOfMedals");
+		btnResultOfMedals.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				System.out.println("آمار مدال های طلا ");
+				System.out.println("آمار مدال ها ");
+				
+				Player.sort(players);
+				
 				for (int i = 0; i < players.size(); i++) {
 					try {
-						System.out.println(players.elementAt(i).name+"  "+players.elementAt(i).GoldMedal);
+						System.out.println(players.elementAt(i).name+"\t\t"+players.elementAt(i).goldMedal+"\t"+players.elementAt(i).silverMedal+"\t"+players.elementAt(i).bronzeMedal);
 					} catch (Exception e1) {
 						System.out.println("null");
 					}
@@ -73,8 +78,8 @@ public class MainFrame extends JFrame implements ActionListener {
 				System.out.println("_____________");
 			}
 		});
-		btnGoldMedal.setBounds(12, 121, 143, 25);
-		contentPane.add(btnGoldMedal);
+		btnResultOfMedals.setBounds(12, 68, 143, 25);
+		contentPane.add(btnResultOfMedals);
 
 		players = new Vector<Player>();
 	}
@@ -88,7 +93,7 @@ public class MainFrame extends JFrame implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == btnRunTournament) {
-			Vector<Player> temp = players;
+			Vector<Player> temp = (Vector<Player>) players.clone();
 			normalizePlayers(temp);
 			temp = Randomize(temp);
 			System.out.println("آغاز دور جدید");
@@ -101,7 +106,15 @@ public class MainFrame extends JFrame implements ActionListener {
 			}
 			while (temp.size() != 1) {
 				normalizePlayers(temp);
-				temp = doStage(temp);
+				switch (temp.size()) {
+				case 4:
+					temp = semiFinal(temp);
+					break;
+
+				default:
+					temp = doStage(temp);
+					break;
+				}
 				System.out.println("ــــــــــــــــــــ");
 				for (int i = 0; i < temp.size(); i++) {
 					try {
@@ -111,8 +124,6 @@ public class MainFrame extends JFrame implements ActionListener {
 					}
 				}
 			}
-			temp.elementAt(0).overall+=1;
-			temp.elementAt(0).GoldMedal+=1;
 			System.out.println("\nfinish \n");
 		}
 	}
@@ -147,8 +158,35 @@ public class MainFrame extends JFrame implements ActionListener {
 		for (int i = 0; i < size; i += 2) {
 			Match match = new Match(vecplayer.elementAt(i),
 					vecplayer.elementAt(i + 1));
-			result.addElement(match.doMatch());
+			Vector<Player> matchRes = match.doMatch();
+			result.addElement(matchRes.elementAt(0));
+			if(size==2){
+				matchRes.elementAt(0).goldMedal++;
+				matchRes.elementAt(1).silverMedal++;
+			}
 		}
+		return result;
+	}
+	
+	public Vector<Player> semiFinal(Vector<Player> vecplayer) {
+		int size = vecplayer.size();
+		Vector<Player> result = new Vector<>();
+		Vector<Player> loosers = new Vector<>();
+		if (size == 1) {
+			result.addElement(vecplayer.elementAt(0));
+			return result;
+		}
+		for (int i = 0; i < size; i += 2) {
+			Match match = new Match(vecplayer.elementAt(i),
+					vecplayer.elementAt(i + 1));
+			Vector<Player> matchRes = match.doMatch();
+			result.addElement(matchRes.elementAt(0));
+			loosers.addElement(matchRes.elementAt(1));
+		}
+		if(loosers.elementAt(0)!=null)
+		loosers.elementAt(0).bronzeMedal++;
+		if(loosers.elementAt(1)!=null)
+		loosers.elementAt(1).bronzeMedal++;
 		return result;
 	}
 	
@@ -174,5 +212,5 @@ public class MainFrame extends JFrame implements ActionListener {
 		for(int i=0;i<array.length;i++)
 			result.addElement(array[i]);
 		return result;		
-	}
+	}	
 }

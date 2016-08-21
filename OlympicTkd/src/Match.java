@@ -1,3 +1,5 @@
+import java.util.Vector;
+
 
 public class Match {
 	Player A,B;
@@ -8,20 +10,32 @@ public class Match {
 		B = b;
 	}
 	
-	public Player doMatch(){
-		if(A==null)
-			return B;
-		if(B==null)
-			return A;
+	//return Vector of 2 players first is winner 2nd is looser
+	public Vector<Player> doMatch(){
+		Vector<Player> players= new Vector<>();
+		if(A==null){
+			players.addElement(B);
+			players.addElement(A);
+			return players;
+		}
+		if(B==null){
+			players.addElement(A);
+			players.addElement(B);
+			return players;
+		}
 		int a = A.overall;
 		int b = B.overall;
 		int rand = (int) (Math.random()*(a+b));
 		
 		if(rand<a){
-			return A;
+			players.addElement(A);
+			players.addElement(B);
+			return players;
 		}
 		else{
-			return B;
+			players.addElement(B);
+			players.addElement(A);
+			return players;
 		}
 	}
 }
